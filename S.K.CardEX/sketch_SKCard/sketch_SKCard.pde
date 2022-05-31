@@ -1,7 +1,7 @@
 //sketch_S.K.Card
 
 PrintWriter file; 
-int exCount = 1;//実験する回数
+int exCount = 10;//実験する回数
 int exTime []= {
   1,2,3
   ,4, 5 
