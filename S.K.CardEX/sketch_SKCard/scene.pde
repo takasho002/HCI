@@ -14,7 +14,6 @@ class Scene {
 
   //シーンを表示する関数
   void display() {    
-    delay(1000 * _delayTime);
     fill(255, 0, 0);
     ellipse(width/2, height/2, _r, _r);
     _passedTime = millis();

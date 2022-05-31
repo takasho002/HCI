@@ -3,20 +3,20 @@
 PrintWriter file; 
 int exCount = 1;//実験する回数
 int exTime []= {
-  1, 2, 3 
-  //,4, 5, 6, 7, 8, 9, 10  
+  1,2,3
+  ,4, 5 
 };
 int currentNum = 0;
 Scene scenes[] = new Scene[exTime.length * exCount ];
 
 float startTime;
 int countdown;
-
+int start;
 void setup() {
   size(1000, 500);
   //配列シャッフル
   //ファイル保存
-  file = createWriter("steering.csv");
+  file = createWriter("SKCards.csv");
 
   //sceneの初期化
   for (int i = 0; i < exCount; i ++) {
@@ -29,25 +29,43 @@ void setup() {
   background(255);
   startTime = millis();
   countdown = 3;
+  start = countdown;
+  count[start] = millis();
 }
+float count[] = {
+  1, 2, 3, 4
+};
 
 void draw() {
-  if (currentNum == 0) {
-    while (millis() - startTime <=  3000) {
-      int p = (int)((millis()-startTime)/1000);
-      int t = 3 - p;
-      print(countdown);
-      if (countdown != t) {
+  if (scenes[currentNum]._startflag) {
+    if (countdown >=0)count[countdown] = millis();
+    if (countdown == start) {
+      background(255);
+      fill(0);
+      textSize(15);
+      text(countdown, width/2, height/2);
+      count[countdown] = millis();
+      countdown --;
+    } else if (countdown > 0) {
+      if (count[countdown + 1 ] - count[countdown] < -1000) {
         background(255);
         fill(0);
         textSize(15);
         text(countdown, width/2, height/2);
-        countdown = t;
+        countdown --;
       }
+    } else if (countdown == 0 && count[countdown + 1 ] - count[countdown] < -1000) {
+      background(0);
+      scenes[currentNum].flag();
+
+      count[countdown] = millis();
     }
   }
-  if (scenes[currentNum]._startflag) {
-    scenes[currentNum].display();
+  if (!scenes[currentNum]._startflag) {
+    println( millis() + "-" + count[countdown] + "=" + (millis() - count[countdown]));
+    if (millis() - count[countdown]> 1000 * scenes[currentNum]._delayTime) {
+      scenes[currentNum].display();
+    }
   }
 }
 
@@ -57,12 +75,15 @@ void draw() {
 void mousePressed() { 
   if (dist(width/2, (height/2), mouseX, mouseY) <= scenes[currentNum]._r && !scenes[currentNum]._startflag) {
     //表示された円をクリックでタイマーストップ、記録
-    scenes[currentNum]._passedTime = millis() - scenes[currentNum]._passedTime;
+    float passedTime = millis() - count[countdown] -1000 * scenes[currentNum]._delayTime;
     file.print(currentNum+1 + ",");
     file.print(scenes[currentNum]._delayTime + ",");
-    file.print(scenes[currentNum]._passedTime + ",");
-    file.println(scenes[currentNum]._passedTime);
+    file.println(passedTime);
     scenes[currentNum].flag();
+    for (int i = 0; i < count . length; i ++) {
+      count[i] = 0;
+    }
+    countdown = start;
     background(255);
     if (currentNum < scenes.length-1)currentNum ++;
     else {
@@ -101,10 +122,4 @@ Scene []shuffle(Scene base_arr[]) {
     base_arr = temp_arr;
   }
   return rand_arr;
-}
-
-boolean delayTime(float startTime, int delayTime) {
-  float currentTime = millis();
-  if (startTime + (float)delayTime * 1000 >= currentTime) return true;
-  return false;
 }
